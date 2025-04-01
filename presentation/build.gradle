@@ -41,19 +41,7 @@ android {
 
     signingConfigs {
         release {
-            def keystoreProps = new Properties()
-            def keystorePropsFile = rootProject.file('./.gradle/.gradlerc')
-            storeFile file('./my-release-key.keystore')
-            keyAlias 'quik_release'
-            if (keystorePropsFile.exists()) {
-                keystoreProps.load(new FileInputStream(keystorePropsFile))
-            } else if (System.getenv("CI") == "true") {
-//                do nothing
-            } else {
-                throw new GradleException("Keystore properties file not found.")
-            }
-            storePassword keystoreProps['storePassword']
-            keyPassword keystoreProps['keyPassword']
+            
         }
     }
     
