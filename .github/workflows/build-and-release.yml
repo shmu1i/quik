@@ -29,9 +29,7 @@ jobs:
         
       - name: Build APK
         run: |
-          ./gradlew assembleNoAnalyticsRelease \
-            
-            --stacktrace
+          ./gradlew assembleNoAnalyticsRelease 
       
       - name: Rename APK
         run: mv presentation/build/outputs/apk/noAnalytics/release/QUIK-v*-noAnalytics-release.apk presentation/build/outputs/apk/noAnalytics/release/QUIK-noAnalytics-release.apk
