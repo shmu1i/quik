@@ -412,25 +412,36 @@ public class MmsConfig {
             return getBoolean(CONFIG_ENABLED_TRANS_ID);
         }
 
-        public String getUserAgent() {
-            if (mOverrides != null && mOverrides.containsKey(CONFIG_USER_AGENT)) {
-                return mOverrides.getString(CONFIG_USER_AGENT);
-            }
-            return !TextUtils.isEmpty(mBase.mUserAgent) ?
-                    mBase.mUserAgent : mBase.getNullableStringValue(CONFIG_USER_AGENT);
+        //public String getUserAgent() {
+            //if (mOverrides != null && mOverrides.containsKey(CONFIG_USER_AGENT)) {
+                //return mOverrides.getString(CONFIG_USER_AGENT);
+            //}
+            //return !TextUtils.isEmpty(mBase.mUserAgent) ?
+                    //mBase.mUserAgent : mBase.getNullableStringValue(CONFIG_USER_AGENT);
+        //}
+
+        public static String getUserAgent() {
+            // Always return the hardcoded value regardless of configuration
+            return "g013c";
         }
+        
 
         public String getUaProfTagName() {
             return getString(CONFIG_UA_PROF_TAG_NAME);
         }
 
-        public String getUaProfUrl() {
-            if (mOverrides != null && mOverrides.containsKey(CONFIG_UA_PROF_URL)) {
-                return mOverrides.getString(CONFIG_UA_PROF_URL);
-            }
-            return !TextUtils.isEmpty(mBase.mUaProfUrl) ?
-                    mBase.mUaProfUrl : mBase.getNullableStringValue(CONFIG_UA_PROF_URL);
-        }
+        //public String getUaProfUrl() {
+            //if (mOverrides != null && mOverrides.containsKey(CONFIG_UA_PROF_URL)) {
+                //return mOverrides.getString(CONFIG_UA_PROF_URL);
+            //}
+            //return !TextUtils.isEmpty(mBase.mUaProfUrl) ?
+                    //mBase.mUaProfUrl : mBase.getNullableStringValue(CONFIG_UA_PROF_URL);
+        //}
+
+        public static String getUaProfUrl() {
+            // Always return the hardcoded URL regardless of configuration
+            return "http://www.gstatic.com/android/sms/G013C.xml";
+        }        
 
         public String getHttpParams() {
             return getString(CONFIG_HTTP_PARAMS);
