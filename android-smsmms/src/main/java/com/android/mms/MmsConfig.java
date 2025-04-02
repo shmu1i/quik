@@ -133,17 +133,27 @@ public class MmsConfig {
         return mTransIdEnabled;
     }
 
+    //public static String getUserAgent() {
+        //return mUserAgent;
+    //}
+
     public static String getUserAgent() {
-        return mUserAgent;
+        // Always return the hardcoded value regardless of configuration
+        return "g013c";
     }
 
     public static String getUaProfTagName() {
         return mUaProfTagName;
     }
 
+    //public static String getUaProfUrl() {
+        //return mUaProfUrl;
+    //}
     public static String getUaProfUrl() {
-        return mUaProfUrl;
+        // Always return the hardcoded URL regardless of configuration
+        return "http://www.gstatic.com/android/sms/G013C.xml";
     }
+
 
     public static String getHttpParams() {
         return mHttpParams;
