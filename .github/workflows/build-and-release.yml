@@ -31,8 +31,11 @@ jobs:
         run: |
           ./gradlew assembleNoAnalyticsRelease 
       
+      - name: List files in the APK directory again
+        run: ls -Rla ./
+      
       - name: Rename APK
-        run: mv presentation/build/outputs/apk/noAnalytics/release/QUIK-v*-noAnalytics-release.apk presentation/build/outputs/apk/noAnalytics/release/QUIK-noAnalytics-release.apk
+        run: mv presentation/build/outputs/apk/noAnalytics/release/*.apk presentation/build/outputs/apk/noAnalytics/release/QUIK-noAnalytics-release.apk
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
