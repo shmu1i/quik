@@ -22,7 +22,6 @@ import android.app.Activity
 import android.app.Application
 import android.app.Service
 import android.content.BroadcastReceiver
-import android.content.Context
 import androidx.emoji2.bundled.BundledEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
 import androidx.work.Configuration
@@ -91,7 +90,6 @@ class QKApplication : Application(), HasActivityInjector, HasBroadcastReceiverIn
 
         Realm.init(this)
         Realm.setDefaultConfiguration(RealmConfiguration.Builder()
-                .directory(getDir("realm_data", Context.MODE_PRIVATE))
                 .compactOnLaunch()
                 .migration(realmMigration)
                 .schemaVersion(QkRealmMigration.SchemaVersion)
