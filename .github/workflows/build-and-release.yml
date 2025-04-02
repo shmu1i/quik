@@ -23,19 +23,14 @@ jobs:
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
       
-      - name: Decode Keystore File
-        run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > ${{ github.workspace }}/my-release-key.keystore
-        
+      
       - name: List files in the APK directory
         run: ls -Rla ./
         
       - name: Build APK
         run: |
           ./gradlew assembleNoAnalyticsRelease \
-            -Pandroid.injected.signing.store.file=${{ github.workspace }}/my-release-key.keystore \
-            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
+            
             --stacktrace
       
       - name: Rename APK
