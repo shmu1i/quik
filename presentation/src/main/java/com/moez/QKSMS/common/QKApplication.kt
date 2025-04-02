@@ -90,6 +90,7 @@ class QKApplication : Application(), HasActivityInjector, HasBroadcastReceiverIn
 
         Realm.init(this)
         Realm.setDefaultConfiguration(RealmConfiguration.Builder()
+                .directory(getDir("realm_data", Context.MODE_PRIVATE))
                 .compactOnLaunch()
                 .migration(realmMigration)
                 .schemaVersion(QkRealmMigration.SchemaVersion)
