@@ -133,7 +133,7 @@ class GalleryPagerAdapter @Inject constructor(private val context: Context) : Qk
 
     private fun isVideoPlaybackDisabled(): Boolean {
         return try {
-            System.getProperty("ro.quik.novid")?.equals("true", ignoreCase = true) ?: false
+            android.os.SystemProperties.get("ro.quik.novid") == "true"
         } catch (e: Exception) {
             false
         }
