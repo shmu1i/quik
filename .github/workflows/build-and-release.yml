@@ -1,11 +1,9 @@
 name: Build and Release
-
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manually triggered workflow
   push:
     tags:
       - "v*"
-
 jobs:
   apk:
     name: Generate APK
@@ -23,29 +21,24 @@ jobs:
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
       
-      
-      - name: List files in the APK directory
-        run: ls -Rla ./
-        
       - name: Build APK
         run: |
           ./gradlew assembleNoAnalyticsRelease 
       
-      - name: List files in the APK directory again
-        run: ls -Rla ./
-      
       - name: Rename APK
         run: mv presentation/build/outputs/apk/noAnalytics/release/*.apk presentation/build/outputs/apk/noAnalytics/release/QUIK-noAnalytics-release.apk
       
-      - name: Upload APK
+      - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: apk
+          name: quik-apk
           path: presentation/build/outputs/apk/noAnalytics/release/QUIK-noAnalytics-release.apk
+          # This artifact will be available for download for 90 days (default)
 
   release:
     name: Release APK
     needs: apk
+    if: startsWith(github.ref, 'refs/tags/v')  # Only run on tag pushes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,27 +47,17 @@ jobs:
       - name: Set release datetime
         run: echo "DATETIME=$(date +'%d-%m-%y_%s')" >> $GITHUB_ENV
     
-      - name: Create and push tag
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git tag "v${{ env.DATETIME }}"
-          git push origin "v${{ env.DATETIME }}"
-
       - name: Download APK from build
         uses: actions/download-artifact@v4
         with:
-          name: apk
+          name: quik-apk
           path: ./downloaded-apk
           
-      - name: List files in the APK directory
-        run: ls -Rla ./downloaded-apk
-
       - name: Create and upload release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
-          tag_name: "v${{ env.DATETIME }}"
+          tag_name: ${{ github.ref_name }}
           files: ./downloaded-apk/QUIK-noAnalytics-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
