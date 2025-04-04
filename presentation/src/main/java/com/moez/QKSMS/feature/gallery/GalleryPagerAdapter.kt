@@ -114,12 +114,31 @@ class GalleryPagerAdapter @Inject constructor(private val context: Context) : Qk
                 holder.video.player = exoPlayer
                 exoPlayers.add(exoPlayer)
 
-                val dataSourceFactory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "QUIK"))
-                val videoSource = ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(part.getUri())
-                exoPlayer?.prepare(videoSource)
+                if (isVideoPlaybackDisabled()) {
+                    // If video playback is disabled, show toast
+                    android.widget.Toast.makeText(
+                        context,
+                        "Video playback is disabled",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // Normal video playback
+                    val dataSourceFactory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "QUIK"))
+                    val videoSource = ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(part.getUri())
+                    exoPlayer?.prepare(videoSource)
+                }
             }
         }
     }
+
+    private fun isVideoPlaybackDisabled(): Boolean {
+        return try {
+            System.getProperty("ro.quik.novid")?.equals("true", ignoreCase = true) ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 
     override fun getItemViewType(position: Int): Int {
         val part = getItem(position)
