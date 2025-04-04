@@ -22,7 +22,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.os.SystemProperties
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -132,12 +131,17 @@ class GalleryPagerAdapter @Inject constructor(private val context: Context) : Qk
         }
     }
 
-    private fun isVideoPlaybackDisabled(): Boolean {
+    private fun getSystemProperty(propName: String, default: String = ""): String {
         return try {
-            android.os.SystemProperties.get("ro.quik.novid") == "true"
+            val process = Runtime.getRuntime().exec("getprop $propName")
+            process.inputStream.bufferedReader().use { it.readLine() ?: default }
         } catch (e: Exception) {
-            false
+            default
         }
+    }
+    
+    private fun isVideoPlaybackDisabled(): Boolean {
+        return getSystemProperty("quik.novid", "false") == "true"
     }
 
 
