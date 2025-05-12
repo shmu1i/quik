@@ -49,13 +49,13 @@ class ReceiveSms @Inject constructor(
                     ((action is BlockingClient.Action.Block) && prefs.drop.get()) ->  {
                         // blocked and 'drop blocked.' remove from db and don't continue
                         Timber.v("address is blocked and drop blocked is on. dropped")
-                        messageRepo.deleteMessages(it.id)
+                        messageRepo.deleteMessages(listOf(it.id))
                         return@mapNotNull null
                     }
                     action is BlockingClient.Action.Block -> {
                         // blocked
                         Timber.v("address is blocked")
-                        messageRepo.markRead(it.threadId)
+                        messageRepo.markRead(listOf(it.threadId))
                         conversationRepo.markBlocked(
                             listOf(it.threadId),
                             prefs.blockingManager.get(),
@@ -93,6 +93,7 @@ class ReceiveSms @Inject constructor(
                 // update shortcuts
                 Timber.v("update shortcuts")
                 shortcutManager.updateShortcuts()
+                shortcutManager.reportShortcutUsed(it.id)
 
                 // update the badge and widget
                 Timber.v("update badge and widget")

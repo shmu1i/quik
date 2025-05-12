@@ -207,7 +207,6 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
     override val recordAudioMsgRecordVisible: Subject<Boolean> = PublishSubject.create()
     override val recordAudioChronometer: Subject<Boolean> = PublishSubject.create()
     override val recordAudioRecord: Subject<MicInputCloudView.ViewState> = PublishSubject.create()
-//    override val saveMessagesTextIntent: Subject<String> = PublishSubject.create()
 
     private var seekBarUpdater: Disposable? = null
 
@@ -549,17 +548,17 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
             noValidRecipients.visibility = View.VISIBLE
 
             // change constraint of messageList to constrain bottom to top of noValidRecipients
-            val constraintLayout = findViewById<ConstraintLayout>(R.id.contentView)
-            val constraintSet = ConstraintSet()
-            constraintSet.clone(constraintLayout)
-            constraintSet.connect(
-                R.id.messageList,
-                ConstraintSet.BOTTOM,
-                R.id.noValidRecipients,
-                ConstraintSet.TOP,
-                0
-            )
-            constraintSet.applyTo(constraintLayout)
+            ConstraintSet().apply {
+                clone(contentView)
+                connect(
+                    R.id.messageList,
+                    ConstraintSet.BOTTOM,
+                    R.id.noValidRecipients,
+                    ConstraintSet.TOP,
+                    0
+                )
+                applyTo(contentView)
+            }
         }
 
         // if scheduling mode is set, show schedule dialog
@@ -615,14 +614,6 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
             .setNegativeButton(R.string.messageLinkHandling_dialog_negative) { _, _ -> { } }
             .show()
     }
-//
-//    override fun showSaveMessagesFilenameDialog(filename: String) {
-//        TextInputDialog(
-//            this,
-//            getString(R.string.messages_save_file_dialog_title),
-//            saveMessagesTextIntent::onNext
-//        ).setText(filename).show()
-//    }
 
     override fun requestDefaultSms() {
         navigator.showDefaultSmsDialog(this)
@@ -684,7 +675,7 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
             try {
                 startActivityForResult(intent, ComposeView.SpeechRecognitionRequestCode)
             } catch (e: ActivityNotFoundException) {
-                Toast.makeText(this, getString(R.string.stt_toast_no_provider), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_stt_toast), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -848,10 +839,6 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
     override fun onBackPressed() = backPressedIntent.onNext(Unit)
 
     override fun focusMessage() {
-        runOnUiThread {
-            val message = findViewById<QkEditText>(R.id.message)
-            if (message !== null) message.requestFocus()
-        }
+        message.requestFocus()
     }
-
 }

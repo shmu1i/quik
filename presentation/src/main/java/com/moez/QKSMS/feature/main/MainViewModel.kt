@@ -82,8 +82,10 @@ class MainViewModel @Inject constructor(
     private val ratingManager: RatingManager,
     private val syncContacts: SyncContacts,
     private val syncMessages: SyncMessages
-) : QkViewModel<MainView, MainState>(MainState(page = Inbox(data = conversationRepo.getConversations(prefs.unreadAtTop.get())))) {
-    private val lastArchivedThreadIds = ArrayList<Long>()
+) : QkViewModel<MainView, MainState>(
+    MainState(page = Inbox(data = conversationRepo.getConversations(prefs.unreadAtTop.get())))
+) {
+    private var lastArchivedThreadIds = listOf<Long>(0)
 
     init {
         disposables += deleteConversations
@@ -293,9 +295,13 @@ class MainViewModel @Inject constructor(
                 .autoDisposable(view.scope())
                 .subscribe()
 
-        view.drawerOpenIntent
-                .autoDisposable(view.scope())
-                .subscribe { open -> newState { copy(drawerOpen = open) } }
+        view.drawerToggledIntent
+            .doOnNext {
+                newState { copy(drawerOpen = it) }
+                view.drawerToggled(it)
+            }
+            .autoDisposable(view.scope())
+            .subscribe { open -> newState { copy(drawerOpen = open) } }
 
         view.navigationIntent
                 .withLatestFrom(state) { drawerItem, state ->
@@ -342,9 +348,8 @@ class MainViewModel @Inject constructor(
                 .filter { itemId -> itemId == R.id.archive }
                 .withLatestFrom(view.conversationsSelectedIntent) { _, conversations ->
                     markArchived.execute(conversations)
-                    lastArchivedThreadIds.clear()
-                    conversations.forEach { conversation -> lastArchivedThreadIds.add(conversation) }
-                    view.showArchivedSnackbar(conversations.count())
+                    lastArchivedThreadIds = conversations.toList()
+                    view.showArchivedSnackbar(lastArchivedThreadIds.count())
                     view.clearSelection()
                 }
                 .autoDisposable(view.scope())
@@ -353,7 +358,7 @@ class MainViewModel @Inject constructor(
         view.optionsItemIntent
                 .filter { itemId -> itemId == R.id.unarchive }
                 .withLatestFrom(view.conversationsSelectedIntent) { _, conversations ->
-                    markUnarchived.execute(conversations)
+                    markUnarchived.execute(conversations.toList())
                     view.showArchivedSnackbar(conversations.count())
                     view.clearSelection()
                 }
@@ -385,7 +390,7 @@ class MainViewModel @Inject constructor(
         view.optionsItemIntent
                 .filter { itemId -> itemId == R.id.pin }
                 .withLatestFrom(view.conversationsSelectedIntent) { _, conversations ->
-                    markPinned.execute(conversations)
+                    markPinned.execute(conversations.toList())
                     view.clearSelection()
                 }
                 .autoDisposable(view.scope())
@@ -394,7 +399,7 @@ class MainViewModel @Inject constructor(
         view.optionsItemIntent
                 .filter { itemId -> itemId == R.id.unpin }
                 .withLatestFrom(view.conversationsSelectedIntent) { _, conversations ->
-                    markUnpinned.execute(conversations)
+                    markUnpinned.execute(conversations.toList())
                     view.clearSelection()
                 }
                 .autoDisposable(view.scope())
@@ -404,7 +409,7 @@ class MainViewModel @Inject constructor(
                 .filter { itemId -> itemId == R.id.read }
                 .filter { permissionManager.isDefaultSms().also { if (!it) view.requestDefaultSms() } }
                 .withLatestFrom(view.conversationsSelectedIntent) { _, conversations ->
-                    markRead.execute(conversations)
+                    markRead.execute(conversations.toList())
                     view.clearSelection()
                 }
                 .autoDisposable(view.scope())
@@ -414,7 +419,7 @@ class MainViewModel @Inject constructor(
                 .filter { itemId -> itemId == R.id.unread }
                 .filter { permissionManager.isDefaultSms().also { if (!it) view.requestDefaultSms() } }
                 .withLatestFrom(view.conversationsSelectedIntent) { _, conversations ->
-                    markUnread.execute(conversations)
+                    markUnread.execute(conversations.toList())
                     view.clearSelection()
                 }
                 .autoDisposable(view.scope())
@@ -488,7 +493,7 @@ class MainViewModel @Inject constructor(
         view.confirmDeleteIntent
                 .autoDisposable(view.scope())
                 .subscribe { conversations ->
-                    deleteConversations.execute(conversations)
+                    deleteConversations.execute(conversations.toList())
                     view.clearSelection()
                 }
 
@@ -518,8 +523,7 @@ class MainViewModel @Inject constructor(
                     when (action) {
                         Preferences.SWIPE_ACTION_ARCHIVE ->
                             markArchived.execute(listOf(threadId)) {
-                                lastArchivedThreadIds.clear()
-                                lastArchivedThreadIds.add(threadId)
+                                lastArchivedThreadIds = listOf(threadId)
                                 view.showArchivedSnackbar(1)
                             }
                         Preferences.SWIPE_ACTION_DELETE ->
@@ -543,8 +547,8 @@ class MainViewModel @Inject constructor(
         view.undoArchiveIntent
                 .autoDisposable(view.scope())
                 .subscribe {
-                    markUnarchived.execute(lastArchivedThreadIds)
-                    lastArchivedThreadIds.clear()
+                    markUnarchived.execute(lastArchivedThreadIds.toList())
+                    lastArchivedThreadIds = listOf()
                 }
 
         view.snackbarButtonIntent
